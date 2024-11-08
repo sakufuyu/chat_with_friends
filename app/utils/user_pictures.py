@@ -1,7 +1,7 @@
 import boto3
 
 s3 = boto3.client("s3")
-BUCKET_NAME = "chat-app-flask"
+BUCKET_NAME = "<bucket_name>"
 
 
 def save_picture(file_path, object_name):
