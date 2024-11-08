@@ -3,7 +3,7 @@
 This is a Flask-based web application that enables users to chat with AI friends powered by Amazon Bedrock. Users can register, log in, and exchange messages with various AI personalities.
 
 ## Test Play Video
-[https://d2wm9ivq8if9lh.cloudfront.net]
+[https://d2wm9ivq8if9lh.cloudfront.net/chat_with_friends.html]
 
 ## Features
 
