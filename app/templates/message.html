@@ -1,0 +1,78 @@
+{% from "_formhelpers.html" import render_field %}
+{% extends "base.html" %}
+{% block title %}
+Message - {{ super() }}
+{% endblock %}
+{% block content %}
+<script>
+    $(function() {
+        timer = setInterval("get_new_messages()", 10000);
+        var scroll = (document.scrollingElement || document.body);
+        scroll.scrollTop = scroll.scrollHeight;
+    });
+    user_id = "{{ user_id }}";
+    friend = "{{ friend }}";
+    user_name = "{{ user_name }}";
+    offset_value = 1;
+    function get_new_messages() {
+        $.getJSON("/message_ajax", {
+            user_id: user_id,
+            friend: friend
+        }, function(data){
+            if (data["data"] != "") {
+                $("#message-form").before(data["data"]);
+            } else {
+                var unReadMessagesIdx = data["unReadMessagesIdx"];
+                for (let idx = 0; idx < unReadMessagesIdx.length; idx++) {
+                    $("#is-read-"+unReadMessagesIdx[idx]).append("<p>read</p>");
+                };
+            };
+        })
+    };
+</script>
+<div class="row">
+    <div id="load_message_button" class="col-12">
+        <!-- <button class="col-12 btn btn-light btn-outline-primary" onclick="load_old_messages();">
+            Read more messages
+        </button> -->
+    </div>
+    {% for message in messages %}
+        {% if message["L"][0]["S"] == "user" %}
+            <div id="is-read-{{loop.index0}}" class="col-lg-1 offset-lg-6 col-md-1 offset-md-2 col-sm-1 offset-sm-1 col-1">
+                {% if message["L"][2]["BOOL"] %}
+                    <p>read</p>
+                {% endif %}
+            </div>
+            <div class="speech-bubble-self col-lg-4 col-md-8 col-sm-8 col-9">
+                {% for splited_message in message["L"][1]["S"]|replace_newline %}
+                    <p>{{splited_message|urlize}}</p>
+                {% endfor %}
+            </div>
+            <div class="col-lg-1 col-md-1 col-sm-2 col-2">
+                {% if current_user.picture_path %}
+                    <img class="user-image-mini" src="{{url_for('static', filename=current_user.picture_path)}}">
+                {% endif %}
+                <p>{{current_user.username}}</p>
+            </div>
+        {% else %}
+            <div class="col-lg-1 col-md-1 col-sm-2 col-2">
+                <img class="user-image-mini" src="{{url_for('static', filename='perm_imgs/{0}.jpeg'.format(friend))}}">
+                <p>{{friend}}</p>
+            </div>
+            <div class="speech-bubble-dest col-lg-4 col-lg-4 col-md-8 col-sm-8 col-9">
+                {% for splited_message in message["L"][1]["S"]|replace_newline %}
+                    <p>{{splited_message|urlize}}</p>
+                {% endfor %}
+            </div>
+            <div class="col-lg-7 col-md-3 col-sm-1 col-1"></div>
+        {% endif %}
+    {% endfor %}
+    <div id="message-form" class="col-lg-4 offset-lg-7 col-md-8 offset-md-4 col-sm-12 col-12">
+        <form method="POST">
+            {{ form.csrf_token }}
+            {{ render_field(form.message, cols="50", rows="5") }}
+            {{ form.submit() }}
+        </form>
+    </div>
+</div>
+{% endblock %}
